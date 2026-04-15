@@ -1,0 +1,26 @@
+name: Daily Auto Commit (3x)
+
+on:
+  schedule:
+    - cron: '0 0 * * *'   # 00:00 UTC
+    - cron: '0 8 * * *'   # 08:00 UTC
+    - cron: '0 16 * * *'  # 16:00 UTC
+  workflow_dispatch:
+
+jobs:
+  commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Make commit
+        run: |
+          echo "Last updated: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" > activity.log
+          git add activity.log
+          git commit -m "chore: auto-update $(date -u '+%Y-%m-%d %H:%M') UTC"
+          git push
