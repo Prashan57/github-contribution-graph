@@ -1,22 +1,11 @@
-name: Daily Auto Commit (15x)
+name: Random Auto Commit (15–75)
 
 on:
   schedule:
     - cron: '0 0 * * *'
-    - cron: '0 2 * * *'
-    - cron: '0 3 * * *'
-    - cron: '0 5 * * *'
-    - cron: '0 7 * * *'
-    - cron: '0 8 * * *'
-    - cron: '0 10 * * *'
+    - cron: '0 6 * * *'
     - cron: '0 12 * * *'
-    - cron: '0 13 * * *'
-    - cron: '0 15 * * *'
-    - cron: '0 16 * * *'
     - cron: '0 18 * * *'
-    - cron: '0 20 * * *'
-    - cron: '0 21 * * *'
-    - cron: '0 23 * * *'
   workflow_dispatch:
 
 permissions:
@@ -27,7 +16,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout repo
+        uses: actions/checkout@v5
         with:
           persist-credentials: true
 
@@ -36,9 +26,22 @@ jobs:
           git config user.name "Prashan Prajapati"
           git config user.email "officialprashan@gmail.com"
 
-      - name: Make commit
+      - name: Generate random commits
         run: |
-          echo "Last updated: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" > activity.log
-          git add activity.log
-          git diff --cached --quiet || git commit -m "chore: auto-update $(date -u '+%Y-%m-%d %H:%M') UTC"
+          # Random number between 15 and 75
+          COUNT=$((RANDOM % 61 + 15))
+          echo "Making $COUNT commits"
+
+          for i in $(seq 1 $COUNT)
+          do
+            # Ensure unique content every time
+            echo "$(date -u '+%Y-%m-%d %H:%M:%S UTC') - Update $i - $RANDOM" >> activity.log
+
+            git add activity.log
+            git commit -m "chore: random update $i $(date -u '+%Y-%m-%d %H:%M:%S') UTC"
+
+            # Random delay (1–15 sec)
+            sleep $((RANDOM % 15 + 1))
+          done
+
           git push
